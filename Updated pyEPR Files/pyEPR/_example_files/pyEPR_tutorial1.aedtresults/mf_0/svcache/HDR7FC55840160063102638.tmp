@@ -1,0 +1,71 @@
+SimValueCacheVersionID=1
+$begin 'SimValueInfos'
+	NextUniqueID=2
+	MoveBackwards=false
+	$begin 'SimValue'
+		ID=0
+		$begin 'SimValueParams'
+			QuantityName='Mode(1)'
+			ValueState(90, 15, 1, 2)
+			MatrixSize(0, 0)
+		$end 'SimValueParams'
+	$end 'SimValue'
+	$begin 'SimValue'
+		ID=1
+		$begin 'SimValueParams'
+			QuantityName='Mode(2)'
+			ValueState(90, 15, 1, 2)
+			MatrixSize(0, 0)
+		$end 'SimValueParams'
+	$end 'SimValue'
+$end 'SimValueInfos'
+$begin 'SimValueCache'
+	$begin 'DesignMap'
+		DesignID=0
+		$begin 'SolutionMap'
+			$begin 'ContextMap'
+				SolutionID=25
+				$begin 'VersionMap'
+					$begin 'ReportTypeSolnDef'
+						ReportType=2
+						SimValueContext(0, 0, 2, 0, false, false, -1, 1, 0, 1, 1, '', 0, 0)
+					$end 'ReportTypeSolnDef'
+					$begin 'MajorVVMap'
+						VersionID=591
+						$begin 'MinorVVMap'
+							MajorVariation='c_h=\'0.4mm\' c_l=\'7mm\' c_w=\'2.9mm\' height=\'17mm\' jj_w=\'50um\' length=\'33mm\' Lj_1=\'12nH\' pad_gap=\'100um\' pad_h=\'350um\' pad_w=\'0.75mm\' width=\'3mm\''
+							MinorCacheFile='min7FC55840160063102639.tmp'
+						$end 'MinorVVMap'
+						$begin 'MinorVVMap'
+							MajorVariation='c_h=\'0.4mm\' c_l=\'7mm\' c_w=\'2.9mm\' height=\'17mm\' jj_w=\'50um\' length=\'33mm\' Lj_1=\'7nH\' pad_gap=\'100um\' pad_h=\'350um\' pad_w=\'0.75mm\' width=\'3mm\''
+							MinorCacheFile='min7FC55840160063102640.tmp'
+						$end 'MinorVVMap'
+						$begin 'MinorVVMap'
+							MajorVariation='c_h=\'0.4mm\' c_l=\'7mm\' c_w=\'2.9mm\' height=\'17mm\' jj_w=\'50um\' length=\'33mm\' Lj_1=\'6nH\' pad_gap=\'100um\' pad_h=\'350um\' pad_w=\'0.75mm\' width=\'3mm\''
+							MinorCacheFile='min7FC55840160063102641.tmp'
+						$end 'MinorVVMap'
+						$begin 'MinorVVMap'
+							MajorVariation='c_h=\'0.4mm\' c_l=\'7mm\' c_w=\'2.9mm\' height=\'17mm\' jj_w=\'50um\' length=\'33mm\' Lj_1=\'7.2nH\' pad_gap=\'100um\' pad_h=\'350um\' pad_w=\'0.75mm\' width=\'3mm\''
+							MinorCacheFile='min7FC55840160063102642.tmp'
+						$end 'MinorVVMap'
+						$begin 'MinorVVMap'
+							MajorVariation='c_h=\'0.4mm\' c_l=\'7mm\' c_w=\'2.9mm\' height=\'17mm\' jj_w=\'50um\' length=\'33mm\' Lj_1=\'8.4nH\' pad_gap=\'100um\' pad_h=\'350um\' pad_w=\'0.75mm\' width=\'3mm\''
+							MinorCacheFile='min7FC55840160063102643.tmp'
+						$end 'MinorVVMap'
+						$begin 'MinorVVMap'
+							MajorVariation='c_h=\'0.4mm\' c_l=\'7mm\' c_w=\'2.9mm\' height=\'17mm\' jj_w=\'50um\' length=\'33mm\' Lj_1=\'9.6nH\' pad_gap=\'100um\' pad_h=\'350um\' pad_w=\'0.75mm\' width=\'3mm\''
+							MinorCacheFile='min7FC55840160063102644.tmp'
+						$end 'MinorVVMap'
+						$begin 'MinorVVMap'
+							MajorVariation='c_h=\'0.4mm\' c_l=\'7mm\' c_w=\'2.9mm\' height=\'17mm\' jj_w=\'50um\' length=\'33mm\' Lj_1=\'10.8nH\' pad_gap=\'100um\' pad_h=\'350um\' pad_w=\'0.75mm\' width=\'3mm\''
+							MinorCacheFile='min7FC55840160063102645.tmp'
+						$end 'MinorVVMap'
+					$end 'MajorVVMap'
+				$end 'VersionMap'
+			$end 'ContextMap'
+			$begin 'ContextMap'
+				SolutionID=26
+			$end 'ContextMap'
+		$end 'SolutionMap'
+	$end 'DesignMap'
+$end 'SimValueCache'

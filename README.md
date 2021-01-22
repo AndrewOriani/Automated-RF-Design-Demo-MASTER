@@ -8,13 +8,13 @@ These notebooks provide a (somewhat) complete compilation of the setup and imple
 
 There is also a demonstration of how to import popular file formats (.STP and .DXF for 3D and 2D respectively) and generating parts using the companion PyInventor API module (https://github.com/AndrewOriani/PyInventor). The Ansys functionality is derived from the Ansys module within pyEPR (https://github.com/zlatko-minev/pyEPR). These demos however will not work with the current stable release of pyEPR (0.8.4) and requires additional functionality that was added by me to successfully run the demonstrations. You can find this modified version inside of the pyEPR-UPDATED folder. To install this open a shell or cmd line at the file path and simply run:
 
-'''
+```
 python setup.py install
-''' 
+```
 
 This will automatically overwrite any existing pyEPR install with this modified version. NOTE: This is backwards compatible with pyEPR versions 0.8.2 or ealier if you have existing pyEPR code. 
 
-This code also makes use of the 'ezdxf' and 'asteval' libraries, both of which can be installed via pip or conda. Otherwise the code uses the same dependancies as the master pyEPR module.
+This code also makes use of the `ezdxf` and `asteval` libraries, both of which can be installed via pip or conda. Otherwise the code uses the same dependancies as the master pyEPR module.
 
 # Additional Ansys Functionality
 

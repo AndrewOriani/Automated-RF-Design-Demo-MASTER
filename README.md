@@ -16,7 +16,7 @@ This will automatically overwrite any existing pyEPR install with this modified 
 
 This code also makes use of the `ezdxf` and `asteval` libraries, both of which can be installed via pip or conda. Otherwise the code uses the same dependancies as the master pyEPR module.
 
-# Additional Ansys Functionality
+## Additional Ansys Functionality
 
 In addition to the existing Ansys module within pyEPR, this modified version has added:
 * Importation of design files

@@ -2975,7 +2975,7 @@ class HfssModeler(COMWrapper):
         layer_groups=[]
         model_objs=self.get_object_names()
         for lay in layers: 
-            self.create_group([obj for obj in model_objs if lay in obj.split('_')[2]])
+            self.create_group([obj for obj in model_objs if lay in obj])
             layer_groups.append("DXF_layer_%s_Group"%lay)
         return layer_groups
 

@@ -1,11 +1,11 @@
 $begin 'EMConvergenceData'
 	$begin 'ConvInfo'
-		IsConverged=false
+		IsConverged=true
 		MaxPasses='10'
 		MinPasses='1'
-		ConvTarget='0.1'
+		ConvTarget='1'
 		ConvTargetConsecPasses='1'
-		ConvCurrentConsecPasses='0'
+		ConvCurrentConsecPasses='1'
 	$end 'ConvInfo'
 	$begin 'ConvValues'
 		$begin 'QuantityValues'

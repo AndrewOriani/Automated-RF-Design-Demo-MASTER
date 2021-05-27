@@ -2834,14 +2834,28 @@ class HfssModeler(COMWrapper):
         )
         return blank_name
 
+    def rotate(self, selection_name, axis, angle):
+        assert axis.lower() in "xyz", 'Axis must be X,Y,Z'
+        if type(selection_name)!=list:
+            selection_name=[selection_name]
+        selection_array = ["NAME:Selections",
+                           "Selections:="	, ",".join(selection_name),
+                           "NewPartsModelFlag:="	, "Model"]
+        self._modeler.Rotate(
+            selection_array,
+            ["NAME:RotateParameters",
+              "RotateAxis:=", axis,
+              "RotateAngle:=", str(angle)]
+        )
+        return selection_name
+
     def _fillet(self, radius, vertex_index, obj):
         vertices = self._modeler.GetVertexIDsFromObject(obj)
         if isinstance(vertex_index, list):
             to_fillet = [int(vertices[v]) for v in vertex_index]
         else:
             to_fillet = [int(vertices[vertex_index])]
-#        print(vertices)
-#        print(radius)
+
         self._modeler.Fillet(["NAME:Selections", "Selections:=", obj],
                              ["NAME:Parameters",
                               ["NAME:FilletParameters",

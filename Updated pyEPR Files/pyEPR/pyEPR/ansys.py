@@ -2408,6 +2408,29 @@ class HfssModeler(COMWrapper):
         )
         return names[0]
 
+    def separate(self, names, split_plane='XY', keep_originals='positive'):
+        assert keep_originals in ['positive', 'negative', 'both'], "keep originals must be positive, negative, or both"
+        assert split_plane in ['XY', "ZX", 'YZ'], "Split plane must be in XY, ZX, YZ plane"
+        if keep_originals=='positive' or keep_originals=='negative':
+            which_side=keep_originals.capitalize()+'Only'
+        else:
+            which_side=keep_originals.capitalize()
+        self._modeler.Split([
+                                "NAME:Selections",
+                                "Selections:="		, names,
+                                "NewPartsModelFlag:="	, "Model"
+                            ], 
+                            [
+                                "NAME:SplitToParameters",
+                                "SplitPlane:="		, split_plane,
+                                "WhichSide:="		, which_side,
+                                "ToolType:="		, "PlaneTool",
+                                "ToolEntityID:="	, -1,
+                                "SplitCrossingObjectsOnly:=", False,
+                                "DeleteInvalidObjects:=", True
+                            ])
+        return names
+
     def translate(self, name, vector):
         self._modeler.Move(
             self._selections_array(name),
@@ -2416,6 +2439,41 @@ class HfssModeler(COMWrapper):
              "TranslateVectorY:=", vector[1],
              "TranslateVectorZ:=", vector[2]]
         )
+
+    def create_objects_from_faces(self, obj, faces, make_entity=True):
+        if type(faces)!=list:
+            faces=[faces]
+
+        detached_faces=self._modeler.CreateObjectFromFaces(
+                        [
+                            "NAME:Selections",
+                            "Selections:="		, obj,
+                            "NewPartsModelFlag:="	, "Model"
+                        ],
+                        [
+                            "NAME:Parameters",
+                            [
+                                "NAME:BodyFromFaceToParameters",
+                                "FacesToDetach:="	, faces
+                            ]
+                            ],
+                            [
+                            "CreateGroupsForNewObjects:=", False
+                            ]
+                        )
+        if make_entity==True:
+            if len(detached_faces)==1:
+                return Face(detached_faces[0], self)
+            else:
+                face_coll=[]
+                for face in list(detached_faces):
+                    face_coll.append(Face(face, self))
+                return face_coll
+        else:
+            if len(detached_faces)==1:
+                return detached_faces[0]
+            else:
+                return list(detached_faces)
 
 
     def get_boundary_assignment(self, boundary_name: str):
@@ -3052,8 +3110,7 @@ class Box(ModelEntity):
         self.y_back_face, self.y_front_face = faces[2], faces[4]
         self.x_back_face, self.x_front_face = faces[3], faces[5]
 
-# class Wirebond(ModelEntity):
-#     return 
+
     
 class Rect(ModelEntity):
     model_command = "CreateRectangle"
@@ -3118,6 +3175,47 @@ class Rect(ModelEntity):
             name=self.name+'_Net'
         self.modeler.assign_net(self, name)
 
+
+class Face(ModelEntity):
+    model_command='DetachFaces'
+    def __init__(self, name, modeler):
+        super(Face, self).__init__(name, modeler)
+        self.prop_holder = modeler._modeler
+        self.modeler=modeler
+        self.name=name
+
+    def make_rlc_boundary(self, axis, r=0, l=0, c=0, name="LumpRLC"):
+        start, end = self.make_center_line(axis)
+        self.modeler._make_lumped_rlc(
+            r, l, c, start, end, ["Objects:=", [self]], name=name)
+
+    def make_lumped_port(self, axis, z0="50ohm", name="LumpPort"):
+        start, end = self.make_center_line(axis)
+        self.modeler._make_lumped_port(
+            start, end, ["Objects:=", [self]], z0=z0, name=name)
+
+    def make_thin_conductor(self, name=None, material='Copper', thickness='50nm', direction='positive'):
+        if name==None:
+            name=self.name+'_thin_cond'
+        self.modeler.assign_thin_conductor(self, name, material, thickness, direction)
+
+    def make_finite_conductivity(self, material="copper", inf_ground_plane=False):
+        self.modeler._boundaries.AssignFiniteCond(	[
+                                                    "NAME:%s"%self.name+"_finite_cond",
+                                                    "Objects:="		, [self.name],
+                                                    "UseMaterial:="		, True,
+                                                    "Material:="		, material,
+                                                    "UseThickness:="	, False,
+                                                    "Roughness:="		, "0um",
+                                                    "InfGroundPlane:="	, False,
+                                                    "IsTwoSided:="		, False,
+                                                    "IsInternal:="		, True
+                                                ])
+
+    def make_net(self, name=None):
+        if name==None:
+            name=self.name+'_Net'
+        self.modeler.assign_net(self, name)
 
 
 class Polyline(ModelEntity):

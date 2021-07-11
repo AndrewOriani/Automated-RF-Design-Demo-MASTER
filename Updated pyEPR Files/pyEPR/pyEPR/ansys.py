@@ -3001,7 +3001,6 @@ class HfssModeler(COMWrapper):
         if layers!=None:
             if type(layers)!=list:
                 layers=[layers]
-            print(layers)
             layers=[lay for lay in layers if lay in des_layers]
             if layers==[]:
                 raise Exception("ERROR: No selected layers is in DXF design file provided")

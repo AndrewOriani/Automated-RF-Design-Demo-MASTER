@@ -763,6 +763,8 @@ class HfssDesign(COMWrapper):
         self._mesh = design.GetModule("MeshSetup")
         self.modeler = HfssModeler(self)
         self.optimetrics = Optimetrics(self)
+        self.setup_args={}
+
 
     def make_active(self):
         self.parent.set_active_design(self.name)
@@ -811,8 +813,8 @@ class HfssDesign(COMWrapper):
                         basis_order=-1):
 
         name = increment_name(name, self.get_setup_names())
-        self._setup_module.InsertSetup(
-            "HfssDriven", [
+
+        setup_args=[
                 "NAME:"+name,
                 "Frequency:=", str(freq_ghz)+"GHz",
                 "MaxDeltaS:=", max_delta_s,
@@ -822,7 +824,12 @@ class HfssDesign(COMWrapper):
                 "PercentRefinement:=", pct_refinement,
                 "IsEnabled:=", True,
                 "BasisOrder:=", basis_order
-            ])
+            ]
+
+        self.setup_args[name]=setup_args
+
+        self._setup_module.InsertSetup(
+            "HfssDriven", setup_args)
         return HfssDMSetup(self, name)
 
     def create_em_setup(self, name="Setup", min_freq_ghz=1, n_modes=1, max_delta_f=0.1,
@@ -830,8 +837,8 @@ class HfssDesign(COMWrapper):
                         basis_order=-1, converge_on_real=True):
 
         name = increment_name(name, self.get_setup_names())
-        self._setup_module.InsertSetup(
-            "HfssEigen", [
+
+        setup_args=[
                 "NAME:"+name,
                 "MinimumFrequency:=", str(min_freq_ghz)+"GHz",
                 "NumModes:=", n_modes,
@@ -842,8 +849,18 @@ class HfssDesign(COMWrapper):
                 "MinimumConvergedPasses:=", min_converged,
                 "PercentRefinement:=", pct_refinement,
                 "IsEnabled:=", True,
-                "BasisOrder:=", basis_order
-            ])
+                "BasisOrder:=", basis_order,
+                "DoLambdaRefine:="	, True,
+		        "DoMaterialLambda:="	, True,
+		        "SetLambdaTarget:="	, False,
+		        "Target:="		, 0.4,
+		        "UseMaxTetIncrease:="	, False,
+            ]
+
+        self.setup_args[name]=setup_args
+
+        self._setup_module.InsertSetup(
+            "HfssEigen", setup_args)
         return HfssEMSetup(self, name)
 
     def create_q3d_setup(self, name="Setup", adaptive_freq_ghz=1, min_passes=1, max_passes=10,
@@ -854,8 +871,8 @@ class HfssDesign(COMWrapper):
             raise TypeError('Incorrect solution type: Must be a Q3D Extractor design')
 
         name=increment_name(name, self.get_setup_names())
-        self._setup_module.InsertSetup("Matrix", 
-                ["NAME:"+name, 
+
+        setup_args=["NAME:"+name, 
                   "AdaptiveFreq:=", str(adaptive_freq_ghz)+"GHz", 
                   "EnableDistribProbTypeOption:=", False, 
                   "SaveFields:=", save_fields, 
@@ -868,7 +885,11 @@ class HfssDesign(COMWrapper):
                         "PerRefine:=", pct_refinement, 
                         "AutoIncreaseSolutionOrder:=", False, 
                         "SolutionOrder:=", soln_order], 
-                      ])
+                      ]
+
+        self.setup_args[name]=setup_args
+
+        self._setup_module.InsertSetup("Matrix", setup_args)
 
         return AnsysQ3DSetup(self, name)
 
@@ -1151,7 +1172,7 @@ class HfssSetup(HfssPropertyObject):
         self.solution_name = setup + " : LastAdaptive"
         #self.solution_name_pass = setup + " : AdaptivePass"
         self.prop_server = "AnalysisSetup:" + setup
-        self.expression_cache_items = []
+        self.expression_cache_items = ['NAME:ExpressionCache']
         self._ansys_version = self.parent._ansys_version
 
     def analyze(self, name=None):
@@ -1255,30 +1276,28 @@ class HfssSetup(HfssPropertyObject):
     def delete_sweep(self, name):
         self._setup_module.DeleteSweep(self.name, name)
 
-#    def add_fields_convergence_expr(self, expr, pct_delta, phase=0):
-#        """note: because of hfss idiocy, you must call "commit_convergence_exprs"
-#         after adding all exprs"""
-#        assert isinstance(expr, NamedCalcObject)
-#        self.expression_cache_items.append(
-#            ["NAME:CacheItem",
-#             "Title:=", expr.name+"_conv",
-#             "Expression:=", expr.name,
-#             "Intrinsics:=", "Phase='{}deg'".format(phase),
-#             "IsConvergence:=", True,
-#             "UseRelativeConvergence:=", 1,
-#             "MaxConvergenceDelta:=", pct_delta,
-#             "MaxConvergeValue:=", "0.05",
-#             "ReportType:=", "Fields",
-#             ["NAME:ExpressionContext"]])
+    def add_fields_convergence_expr(self, expr, pct_delta, phase=0):
+        """note: because of hfss idiocy, you must call "commit_convergence_exprs"
+            after adding all exprs"""
+        assert isinstance(expr, NamedCalcObject)
+        self.expression_cache_items.append(
+            ["NAME:CacheItem",
+                "Title:=", expr.name+"_conv",
+                "Expression:=", expr.name,
+                "Intrinsics:=", "Phase='{}deg'".format(phase),
+                "IsConvergence:=", True,
+                "UseRelativeConvergence:=", 1,
+                "MaxConvergenceDelta:=", pct_delta,
+                "MaxConvergeValue:=", "0.05",
+                "ReportType:=", "Fields",
+                ["NAME:ExpressionContext"]])
 
-#    def commit_convergence_exprs(self):
-#        """note: this will eliminate any convergence expressions not added
-#           through this interface"""
-#        args = [
-#            "NAME:"+self.name,
-#            ["NAME:ExpressionCache", self.expression_cache_items]
-#        ]
-#        self._setup_module.EditSetup(self.name, args)
+    def commit_convergence_exprs(self):
+        """note: this will eliminate any convergence expressions not added
+            through this interface"""
+        args=self.parent.setup_args[self.name]
+        args.append(self.expression_cache_items)
+        self._setup_module.EditSetup(self.name, args)
 
     def get_sweep_names(self):
         return self._setup_module.GetSweeps(self.name)
@@ -1294,29 +1313,29 @@ class HfssSetup(HfssPropertyObject):
                 "Sweep {} not found in {}".format(name, sweeps))
         return HfssFrequencySweep(self, name)
 
-    def add_fields_convergence_expr(self, expr, pct_delta, phase=0):
-        """note: because of hfss idiocy, you must call "commit_convergence_exprs"
-        after adding all exprs"""
-        assert isinstance(expr, NamedCalcObject)
-        self.expression_cache_items.append(
-            ["NAME:CacheItem",
-             "Title:=", expr.name+"_conv",
-             "Expression:=", expr.name,
-             "Intrinsics:=", "Phase='{}deg'".format(phase),
-             "IsConvergence:=", True,
-             "UseRelativeConvergence:=", 1,
-             "MaxConvergenceDelta:=", pct_delta,
-             "MaxConvergeValue:=", "0.05",
-             "ReportType:=", "Fields",
-             ["NAME:ExpressionContext"]])
+    # def add_fields_convergence_expr(self, expr, pct_delta, phase=0):
+    #     """note: because of hfss idiocy, you must call "commit_convergence_exprs"
+    #     after adding all exprs"""
+    #     assert isinstance(expr, NamedCalcObject)
+    #     self.expression_cache_items.append(
+    #         ["NAME:CacheItem",
+    #          "Title:=", expr.name+"_conv",
+    #          "Expression:=", expr.name,
+    #          "Intrinsics:=", "Phase='{}deg'".format(phase),
+    #          "IsConvergence:=", True,
+    #          "UseRelativeConvergence:=", 1,
+    #          "MaxConvergenceDelta:=", pct_delta,
+    #          "MaxConvergeValue:=", "0.05",
+    #          "ReportType:=", "Fields",
+    #          ["NAME:ExpressionContext"]])
 
-    def commit_convergence_exprs(self):
-        """note: this will eliminate any convergence expressions not added through this interface"""
-        args = [
-            "NAME:"+self.name,
-            ["NAME:ExpressionCache", self.expression_cache_items]
-        ]
-        self._setup_module.EditSetup(self.name, args)
+    # def commit_convergence_exprs(self):
+    #     """note: this will eliminate any convergence expressions not added through this interface"""
+    #     args = [
+    #         "NAME:"+self.name,
+    #         ["NAME:ExpressionCache", self.expression_cache_items]
+    #     ]
+    #     self._setup_module.EditSetup(self.name, args)
 
     def get_convergence(self, variation="", pre_fn_args=[], overwrite=True):
         '''

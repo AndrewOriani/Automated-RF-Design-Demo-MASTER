@@ -1276,10 +1276,15 @@ class HfssSetup(HfssPropertyObject):
     def delete_sweep(self, name):
         self._setup_module.DeleteSweep(self.name, name)
 
-    def add_fields_convergence_expr(self, expr, pct_delta, phase=0):
+    def add_fields_convergence_expr(self, expr, pct_delta, context_line, phase=0, num_pts=101):
         """note: because of hfss idiocy, you must call "commit_convergence_exprs"
             after adding all exprs"""
         assert isinstance(expr, NamedCalcObject)
+        assert isinstance(context_line, str)
+        if context_line in self.parent.modeler.get_objects_in_group('Lines'):
+            pass
+        else:
+            raise Exception('ERROR: Context line is not valid line object')
         self.expression_cache_items.append(
             ["NAME:CacheItem",
                 "Title:=", expr.name+"_conv",
@@ -1290,7 +1295,9 @@ class HfssSetup(HfssPropertyObject):
                 "MaxConvergenceDelta:=", pct_delta,
                 "MaxConvergeValue:=", "0.05",
                 "ReportType:=", "Fields",
-                ["NAME:ExpressionContext"]])
+                [   "NAME:ExpressionContext"
+                    "Context:="		, context_line,
+				    "PointCount:="		, num_pts]])
 
     def commit_convergence_exprs(self):
         """note: this will eliminate any convergence expressions not added

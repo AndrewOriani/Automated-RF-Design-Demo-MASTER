@@ -1295,7 +1295,7 @@ class HfssSetup(HfssPropertyObject):
                 "MaxConvergenceDelta:=", pct_delta,
                 "MaxConvergeValue:=", "0.05",
                 "ReportType:=", "Fields",
-                [   "NAME:ExpressionContext"
+                [   "NAME:ExpressionContext",
                     "Context:="		, context_line,
 				    "PointCount:="		, num_pts]])
 
@@ -2466,6 +2466,18 @@ class HfssModeler(COMWrapper):
              "TranslateVectorZ:=", vector[2]]
         )
 
+    def copy_object(self, copy_obj):
+        self._modeler.Copy([
+		                    "NAME:Selections",
+		                    "Selections:="		, copy_obj
+	                        ])
+
+    def paste_object(self):
+        try:
+            return self._modeler.Paste()[0]
+        except:
+            raise Exception('No object to paste')
+
     def create_objects_from_faces(self, obj, faces, make_entity=True):
         if type(faces)!=list:
             faces=[faces]
@@ -3003,6 +3015,13 @@ class HfssModeler(COMWrapper):
                                        ["NAME:PropServers", str(obj)],
                                        ["NAME:ChangedProps", ["NAME:Name", "Value:=", str(name)]]]])
         return name
+
+    def assign_non_model(self, obj):
+        self._modeler.ChangeProperty(["NAME:AllTabs",
+		["NAME:Geometry3DAttributeTab",
+            ["NAME:PropServers", str(obj)],
+			["NAME:ChangedProps",
+				["NAME:Model","Value:="	, False]]]])
 
     def import_3D_obj(self, path):
         source=["NAME:NativeBodyParameters",

@@ -3438,6 +3438,20 @@ class HfssFieldsCalc(COMWrapper):
 
         self.named_expression = {}  # dictionary to hold additional named expressions
 
+    def export_fields_from_pts(self, pts_file, export_file, field_expr, phase=0, include_pts=True):
+        field_expr.copy_to_stack()
+        calc_obj=self.parent.parent._fields_calc
+        calc_obj.ExportToFile(export_file,
+                                pts_file,
+                                self.parent.name+" : LastAdaptive",
+                                [
+                                "Phase:=",str(int(phase)) + "deg"
+                                ],
+                                include_pts
+                            )
+
+        return export_file
+
     def clear_named_expressions(self):
         self.parent.parent._fields_calc.ClearAllNamedExpr()
 
@@ -3673,6 +3687,9 @@ class NamedCalcObject(CalcObject):
         self.name = name
         stack = [("CopyNamedExprToStack", name)]
         super(NamedCalcObject, self).__init__(stack, setup)
+    def copy_to_stack(self):
+        calc=self.setup.parent._fields_calc
+        calc.CopyNamedExprToStack(self.name)
 
 
 class ConstantCalcObject(CalcObject):

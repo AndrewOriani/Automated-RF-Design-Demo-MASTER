@@ -2644,7 +2644,7 @@ class HfssModeler(COMWrapper):
                 ]
         self._boundaries.AssignImpedance(params)
 
-    def assign_finite_conductivity(self, face, material=None, name="FiniteCond", params=None, units='um'):
+    def assign_finite_conductivity(self, face, material=None, conductivity=None, permeability=None, name="FiniteCond", params=None, units='um'):
         if name=="FiniteCond":
             name = increment_name(name, self._boundaries.GetBoundaries())
         else:
@@ -2663,8 +2663,8 @@ class HfssModeler(COMWrapper):
         default_props={
             "UseMaterial":True,
             "Material":material,
-            "Conductivity":None,
-            "Permeability":None,
+            "Conductivity":conductivity,
+            "Permeability":permeability,
             "Roughness":"2um",
             "InfGroundPlane":False,
             "Objects":face,
@@ -2748,8 +2748,9 @@ class HfssModeler(COMWrapper):
                                    "CharImp:=", "Zpi",
                                    "AlignmentGroup:=", 0,
                                    "RenormImp:=", "50ohm"]],
-                   "ShowReporterFilter:=", False, "ReporterFilter:=", [True],
-                   "FullResistance:=", "50ohm", "FullReactance:=", "0ohm"]
+                   "ShowReporterFilter:=", False, 
+                   "ReporterFilter:=", [True],
+                   "Impedance:=", z0]
 
         self._boundaries.AssignLumpedPort(params)
 
